@@ -1,0 +1,13 @@
+{
+  "name": "rag-chatbot-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for the RAG chatbot",
+  "main": "script.js",
+  "scripts": {
+    "start": "serve"
+  },
+  "dependencies": {
+    "rag": "file:..",
+    "serve": "^14.2.0"
+  }
+}
