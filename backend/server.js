@@ -159,7 +159,7 @@ app.post('/analyze', upload.single('image'), async (req, res) => {
 
       // Initialize Gemini with vision capabilities
       const genAI = new GoogleGenerativeAI(googleApiKey);
-      const visionModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+      const visionModel = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
       // First: Check if this is a blood glucose report
       const validationPrompt = `Analyze this image and determine if it contains a blood test report with glucose/sugar levels.

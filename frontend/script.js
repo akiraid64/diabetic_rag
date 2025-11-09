@@ -8,11 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // File upload elements
   const fileInput = document.getElementById('file-input');
-  const uploadZone = document.getElementById('upload-zone');
-  const imagePreview = document.getElementById('image-preview');
-  const imagePreviewContainer = document.getElementById('image-preview-container');
-  const fileNameDisplay = document.getElementById('file-name');
-  const removeImageBtn = document.getElementById('remove-image');
+  const attachButton = document.getElementById('attach-button');
+  const previewMini = document.getElementById('image-preview-mini');
+  const previewThumb = document.getElementById('preview-thumb');
+  const removePreviewBtn = document.getElementById('remove-preview');
 
   const backendUrl = 'http://localhost:3000';
   let uploadedImage = null;
@@ -24,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (data.success) {
         loadingContainer.classList.add('hidden');
         chatContainer.classList.remove('hidden');
+
+        // Show welcome message with document info
+        addMessage(`✅ **Vector Store Ready!**\n\n📚 Diabetes medical document loaded and indexed in FAISS\n\n💡 You can now:\n- Upload blood glucose reports for AI analysis\n- Ask questions about diabetes management\n- Get insights from the medical knowledge base\n\nHow can I help you today?`, 'bot');
       } else {
         console.error('Error loading PDF:', data.message);
         loadingContainer.innerHTML = '<p>Error loading PDF. Please check the backend console.</p>';
@@ -35,35 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   // 2. File upload handlers
-  uploadZone.addEventListener('click', () => {
+  attachButton.addEventListener('click', () => {
     fileInput.click();
   });
 
   fileInput.addEventListener('change', handleFileSelect);
 
-  // Drag and drop
-  uploadZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadZone.classList.add('dragover');
-  });
-
-  uploadZone.addEventListener('dragleave', () => {
-    uploadZone.classList.remove('dragover');
-  });
-
-  uploadZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadZone.classList.remove('dragover');
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFile(files[0]);
-    }
-  });
-
   // Remove image handler
-  removeImageBtn.addEventListener('click', () => {
+  removePreviewBtn.addEventListener('click', () => {
     uploadedImage = null;
-    imagePreviewContainer.classList.add('hidden');
+    previewMini.classList.add('hidden');
     fileInput.value = '';
   });
 
@@ -91,78 +74,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     uploadedImage = file;
 
-    // Show preview for images
+    // Show mini preview thumbnail
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        imagePreview.src = e.target.result;
-        fileNameDisplay.textContent = file.name;
-        imagePreviewContainer.classList.remove('hidden');
+        previewThumb.src = e.target.result;
+        previewMini.classList.remove('hidden');
       };
       reader.readAsDataURL(file);
     } else {
-      // For PDFs, just show filename
-      imagePreview.src = '';
-      fileNameDisplay.textContent = file.name;
-      imagePreviewContainer.classList.remove('hidden');
+      // For PDFs, show a generic icon or text
+      previewThumb.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>';
+      previewMini.classList.remove('hidden');
     }
 
-    // Automatically analyze the uploaded report
-    addMessage('📊 Blood report uploaded! Analyzing...', 'bot');
-    await analyzeUploadedReport();
+    chatInput.focus();
   }
 
-  // Function to automatically analyze uploaded report
-  async function analyzeUploadedReport() {
-    if (!uploadedImage) return;
-
-    // Show the uploaded image in chat
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      addImageMessage(e.target.result, 'user');
-    };
-    reader.readAsDataURL(uploadedImage);
-
-    // Display typing indicator
-    const typingIndicator = addTypingIndicator();
-    sendButton.disabled = true;
-
-    try {
-      // Prepare request data
-      const formData = new FormData();
-      formData.append('message', 'Please analyze this blood report');
-      formData.append('image', uploadedImage);
-
-      // Send to backend
-      const response = await fetch(`${backendUrl}/analyze`, {
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await response.json();
-
-      // Remove typing indicator
-      typingIndicator.remove();
-      sendButton.disabled = false;
-
-      if (data.success) {
-        addMessage(data.message, 'bot');
-      } else {
-        addMessage(data.message || 'Sorry, something went wrong analyzing the report.', 'bot');
-      }
-
-      // Clear uploaded image after successful submission
-      uploadedImage = null;
-      imagePreviewContainer.classList.add('hidden');
-      fileInput.value = '';
-
-    } catch (error) {
-      typingIndicator.remove();
-      sendButton.disabled = false;
-      addMessage('❌ Error analyzing the report. Please try again.', 'bot');
-      console.error('Analysis error:', error);
-    }
-  }
 
   // 3. Handle chat form submission
   chatForm.addEventListener('submit', async (e) => {
@@ -219,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Clear uploaded image after successful submission
       if (uploadedImage) {
         uploadedImage = null;
-        imagePreviewContainer.classList.add('hidden');
+        previewMini.classList.add('hidden');
         fileInput.value = '';
       }
 
