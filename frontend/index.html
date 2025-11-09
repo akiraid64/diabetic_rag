@@ -1,27 +1,57 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diabetes Chatbot</title>
+  <title>Diabetes Health Assistant</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div id="loading-container">
     <div class="loader"></div>
-    <p>Loading Document...</p>
+    <p>Initializing AI Assistant...</p>
   </div>
 
   <div id="chat-container" class="hidden">
     <div id="chat-header">
-      <h2>Diabetes Chatbot</h2>
+      <h2>🩺 Diabetes Health Assistant</h2>
+      <p>Upload blood reports & get AI-powered insights</p>
     </div>
+
+    <!-- Upload Section -->
+    <div id="upload-section">
+      <div id="upload-zone">
+        <div class="upload-icon">📊</div>
+        <p>Upload Blood Glucose Report</p>
+        <p>Click to browse or drag and drop your report here</p>
+        <p class="upload-hint">Supports: JPG, PNG, PDF (Max 10MB)</p>
+        <input type="file" id="file-input" accept="image/*,.pdf">
+      </div>
+
+      <div id="image-preview-container" class="hidden">
+        <img id="image-preview" src="" alt="Report preview">
+        <div class="preview-info">
+          <span class="file-name" id="file-name"></span>
+          <button type="button" id="remove-image">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages Area -->
     <div id="chat-messages"></div>
+
+    <!-- Chat Input Form -->
     <form id="chat-form">
-      <input type="text" id="chat-input" placeholder="Ask a question about diabetes..." autocomplete="off">
-      <button type="submit">Send</button>
+      <div>
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Ask about diabetes or describe your symptoms..."
+          autocomplete="off"
+        >
+        <button type="submit" id="send-button">Send</button>
+      </div>
     </form>
   </div>
 
